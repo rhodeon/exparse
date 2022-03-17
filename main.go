@@ -22,8 +22,7 @@ const (
 )
 
 func main() {
-	//parseParens("2+4+ (5+6)2 * 8")
-	res, err := evaluate("+ 4/-3*2")
+	res, err := evaluate("6*7")
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -51,6 +50,7 @@ func evaluate(expr string) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
+	simplified = splitUnary(simplified)
 
 	var result float64
 
@@ -84,6 +84,27 @@ func evaluate(expr string) (float64, error) {
 	}
 
 	return result, nil
+}
+
+// splitUnary separates all subtraction signs in the expression from their operands.
+func splitUnary(expr []string) []string {
+	var result []string
+
+	for pos, value := range expr {
+		if pos == 0 {
+			// allow only the first operand with a negation retain its sign
+			result = append(result, value)
+		} else {
+			if string(value[0]) == subtract {
+				result = append(result, subtract)
+				result = append(result, value[1:])
+			} else {
+				result = append(result, value)
+			}
+		}
+	}
+
+	return result
 }
 
 // simplify reduces an expression to have only addition and subtraction operators.
@@ -143,6 +164,15 @@ func normalize(expr string) ([]string, error) {
 	trimmedExpr = replacer.Replace(trimmedExpr)
 
 	var legalExp []string
+
+	// ensure only numeric single characters are parsed
+	if len(trimmedExpr) == 1 {
+		_, err := strconv.ParseFloat(trimmedExpr, 64)
+		if err != nil {
+			return []string{}, ErrIllegalCharacter
+		}
+		return []string{trimmedExpr}, nil
+	}
 
 	// TODO: Guard against consecutive operators
 

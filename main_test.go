@@ -47,10 +47,10 @@ func Test_simplify(t *testing.T) {
 		wantErr    error
 	}{
 		{"pure addition", "3 + 5 + 8", []string{"3", "+", "5", "+", "8"}, nil},
-		{"pure subtraction", "3 - 5 - 8", []string{"3", "-", "5", "-", "8"}, nil},
+		{"pure subtraction", "3 - 5 - 8", []string{"3", "-5", "-8"}, nil},
 		{"pure multiplication", "3 * 5.5 * 8", []string{"132"}, nil},
 		{"pure division", "3 / 5 / 8", []string{"0.075"}, nil},
-		{"mixed", "3 + 5 - 2 * 7 / 3 + 4", []string{"3", "+", "5", "-", "4.666666666666667", "+", "4"}, nil},
+		{"mixed", "3 + 5 - 2 * 7 / 3 + 4", []string{"3", "+", "5", "-4.666666666666667", "+", "4"}, nil},
 		{"illegal character", "3 + b - 2", []string{}, ErrIllegalCharacter},
 		{"addition prefix", "+ 2 / 3", []string{"+", "0.6666666666666666"}, nil},
 		{"subtraction prefix", "- 2 * 3", []string{"-", "6"}, nil},
@@ -81,10 +81,13 @@ func Test_evaluate(t *testing.T) {
 		expression string
 		result     float64
 	}{
+		{"single positive operand", "4", 4},
+		{"single negative operand", "-4", -4},
 		{"addition only", "8 + 6", 14},
 		{"subtraction only", "8 - 6", 2},
 		{"addition prefix", "+ 2 - 5.2", -3.2},
-		{"subtraction prefix", "- 2 + 5.8", 3.8},
+		{"subtraction prefix", "-2 + 5.8", 3.8},
+		{"subtraction prefix", "-2 - 5.8", -7.8},
 	}
 
 	for _, tt := range tests {
