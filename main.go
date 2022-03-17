@@ -22,7 +22,7 @@ const (
 )
 
 func main() {
-	res, err := normalize("+ 2/ 3")
+	res, err := evaluate("+ 2/ 3")
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -41,6 +41,48 @@ func isLegal(value string) bool {
 		}
 		return true
 	}
+}
+
+// evaluate computes a simplified expression list (with only addition and subtraction operators)
+// into a final float result.
+func evaluate(expr string) (float64, error) {
+	simplified, err := simplify(expr)
+	if err != nil {
+		return 0, err
+	}
+
+	var result float64
+
+	// the flags determine the next operation
+	var addFlag = true
+	var subtractFlag bool
+
+	for _, value := range simplified {
+		switch value {
+		case add:
+			addFlag = true
+			subtractFlag = false
+
+		case subtract:
+			subtractFlag = true
+			addFlag = false
+
+		default:
+			valueDigit, _ := strconv.ParseFloat(value, 64)
+
+			// add or subtract based on active flag
+			if addFlag {
+				result = result + valueDigit
+			} else if subtractFlag {
+				result = result - valueDigit
+			}
+
+			addFlag = false
+			subtractFlag = false
+		}
+	}
+
+	return result, nil
 }
 
 // simplify reduces an expression to have only addition and subtraction operators.
@@ -148,43 +190,6 @@ func normalize(expr string) ([]string, error) {
 	}
 
 	return legalExp, nil
-}
-
-// evaluate computes a simplified expression list (with only addition and subtraction operators)
-// into a final float result.
-func evaluate(expr []string) float64 {
-	var result float64
-
-	// the flags determine the next operation
-	var addFlag = true
-	var subtractFlag bool
-
-	for _, value := range expr {
-		switch value {
-		case add:
-			addFlag = true
-			subtractFlag = false
-
-		case subtract:
-			subtractFlag = true
-			addFlag = false
-
-		default:
-			valueDigit, _ := strconv.ParseFloat(value, 64)
-
-			// add or subtract based on active flag
-			if addFlag {
-				result = result + valueDigit
-			} else if subtractFlag {
-				result = result - valueDigit
-			}
-
-			addFlag = false
-			subtractFlag = false
-		}
-	}
-
-	return result
 }
 
 // maxDepth returns the deepest level of nested brackets an expression has.

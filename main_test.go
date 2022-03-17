@@ -78,18 +78,18 @@ func Test_simplify(t *testing.T) {
 func Test_evaluate(t *testing.T) {
 	tests := []struct {
 		name       string
-		expression []string
+		expression string
 		result     float64
 	}{
-		{"addition only", []string{"8", "+", "6"}, 14},
-		{"subtraction only", []string{"8", "-", "6"}, 2},
-		{"addition prefix", []string{"+", "2", "-", "5.2"}, -3.2},
-		{"subtraction prefix", []string{"-", "2", "+", "5.8"}, 3.8},
+		{"addition only", "8 + 6", 14},
+		{"subtraction only", "8 - 6", 2},
+		{"addition prefix", "+ 2 - 5.2", -3.2},
+		{"subtraction prefix", "- 2 + 5.8", 3.8},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := evaluate(tt.expression)
+			result, _ := evaluate(tt.expression)
 
 			if result != tt.result {
 				t.Errorf("\nGot:\t%f\nWant:\t%f", result, tt.result)
