@@ -22,7 +22,8 @@ const (
 )
 
 func main() {
-	res, err := evaluate("+ 2/ 3")
+	//parseParens("2+4+ (5+6)2 * 8")
+	res, err := evaluate("+ 4/-3*2")
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -136,6 +137,11 @@ func simplify(expr string) ([]string, error) {
 func normalize(expr string) ([]string, error) {
 	// remove whitespaces in expression
 	trimmedExpr := strings.Join(strings.Fields(expr), "")
+
+	//resolve consecutive addition and subtraction operators
+	replacer := strings.NewReplacer("+-", "-", "--", "+")
+	trimmedExpr = replacer.Replace(trimmedExpr)
+
 	var legalExp []string
 
 	// TODO: Guard against consecutive operators
@@ -175,12 +181,23 @@ func normalize(expr string) ([]string, error) {
 			}
 		} else {
 			switch value {
-			case add, subtract, multiply, divide:
+			case add, multiply, divide:
 				// append and reset operand
 				legalExp = append(legalExp, operand)
 				operand = ""
 				// append operator
 				legalExp = append(legalExp, value)
+
+			case subtract:
+				// group subtraction with the next operand as a unary operator
+
+				if operand != "" {
+					// a separate operand already precedes the subtraction sign
+					legalExp = append(legalExp, operand)
+				}
+
+				operand = ""
+				operand += value
 
 			default:
 				// accumulate operand

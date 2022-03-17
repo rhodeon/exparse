@@ -97,3 +97,34 @@ func Test_evaluate(t *testing.T) {
 		})
 	}
 }
+
+func Test_normalize(t *testing.T) {
+	tests := []struct {
+		name       string
+		expression string
+		wantResult []string
+		wantErr    error
+	}{
+		{"addition", "4+3+2", []string{"4", "+", "3", "+", "2"}, nil},
+		{"addition and subtraction", "4+3-2", []string{"4", "+", "3", "-2"}, nil},
+		{"addition negation", "4+3+-2", []string{"4", "+", "3", "-2"}, nil},
+		{"subtraction negation", "4+3--2", []string{"4", "+", "3", "+", "2"}, nil},
+		{"combined multiplication and subtraction", "4+3*-2", []string{"4", "+", "3", "*", "-2"}, nil},
+		{"combined division and subtraction", "4+3/-2", []string{"4", "+", "3", "/", "-2"}, nil},
+		{"", "4+3P-2", []string{}, ErrIllegalCharacter},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := normalize(tt.expression)
+
+			if err != tt.wantErr {
+				t.Errorf("\nGot:\t%v\nWant:\t%v", err, tt.wantErr)
+			}
+
+			if !reflect.DeepEqual(result, tt.wantResult) {
+				t.Errorf("\nGot:\t%#v\nWant:\t%#v", result, tt.wantResult)
+			}
+		})
+	}
+}
