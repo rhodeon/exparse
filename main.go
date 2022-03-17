@@ -22,11 +22,11 @@ const (
 )
 
 func main() {
-	res, err := evaluate("6*7")
+	result, err := resolveParentheses("2+5 - 2(6+4) + 3")
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		fmt.Printf("%#v", res)
+		fmt.Printf("%#v", result)
 	}
 }
 
@@ -271,4 +271,115 @@ type bracketStack struct {
 	history      []rune
 	currentDepth int
 	maxDepth     int
+}
+
+// resolveParentheses parses an expression with parentheses and returns its simplified form.
+func resolveParentheses(expr string) (string, error) {
+	simplified, err := simplifyParentheses(expr)
+	if err != nil {
+		return "", err
+	}
+
+	evaluated, err := evaluateParentheses(simplified)
+	if err != nil {
+		return "", err
+	} else {
+		return evaluated, nil
+	}
+}
+
+// simplifyParentheses groups the parentheses in the expression
+// and returns a list containing the groups as individual expressions
+// alongside the expressions not covered by parentheses.
+func simplifyParentheses(expr string) ([]string, error) {
+	var nested bool
+	var result []string
+	var buffer string
+
+	expr = strings.Join(strings.Fields(expr), "")
+
+	for pos, char := range expr {
+		value := string(char)
+
+		switch value {
+		case openParenthesis:
+			nested = true
+			buffer = ""
+
+		case closeParenthesis:
+			// flush all values contained within the parentheses
+			nested = false
+			result = append(result, buffer)
+			buffer = ""
+
+		case add, subtract, multiply, divide:
+			if !nested {
+				if buffer != "" {
+					// flush any existing preceding operand to the result
+					result = append(result, buffer)
+					buffer = ""
+				}
+
+				// add the operator to the result
+				result = append(result, value)
+			} else {
+				// accumulate operators as part of sub-expressions
+				buffer += value
+			}
+
+		default:
+			if !isLegal(value) && value != decimal {
+				return []string{}, ErrIllegalCharacter
+			}
+
+			// accumulate digits, nested or not
+			buffer += value
+
+			if !nested {
+				if pos == len(expr)-1 {
+					// flush the final contents of the buffer
+					result = append(result, buffer)
+				} else if string(expr[pos+1]) == openParenthesis {
+					// look ahead to append a multiplication if no operator
+					// is found before the next parenthesis
+					result = append(result, buffer)
+					result = append(result, multiply)
+					buffer = ""
+				}
+			}
+		}
+	}
+
+	return result, nil
+}
+
+// evaluateParentheses computes the value of each sub-expression in the give list of expressions.
+// Operators are not evaluated.
+// The result is returned as a string with the simplified expression.
+func evaluateParentheses(exprs []string) (string, error) {
+	var evaluated []string
+
+	for _, expr := range exprs {
+		switch expr {
+		case add, subtract, multiply, divide:
+			// do not evaluate single operators
+			evaluated = append(evaluated, expr)
+
+		default:
+			evaluatedExpr, err := evaluate(expr)
+			if err != nil {
+				return "", err
+			}
+			evaluated = append(evaluated, strconv.FormatFloat(evaluatedExpr, 'f', -1, 64))
+		}
+	}
+
+	result := strings.Join(evaluated, "")
+	return result, nil
+}
+
+func trimParentheses(expr string) string {
+	expr = strings.TrimLeft(expr, "(")
+	expr = strings.TrimRight(expr, ")")
+	return expr
 }

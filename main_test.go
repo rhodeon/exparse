@@ -131,3 +131,25 @@ func Test_normalize(t *testing.T) {
 		})
 	}
 }
+
+func Test_resolveParentheses(t *testing.T) {
+	tests := []struct {
+		name       string
+		expression string
+		wantResult string
+	}{
+		{"1", "2+5 - 2(6+4) + 3", "2+5-2*10+3"},
+		{"2", "-2+5 - 2(6+4) + 3", "-2+5-2*10+3"},
+		{"3", "2+5 - 2(6*4) + 3", "2+5-2*24+3"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, _ := resolveParentheses(tt.expression)
+
+			if result != tt.wantResult {
+				t.Errorf("\nGot:\t%s\nWant:\t%s", result, tt.wantResult)
+			}
+		})
+	}
+}
