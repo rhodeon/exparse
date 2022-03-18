@@ -13,6 +13,23 @@ func Test_validate(t *testing.T) {
 	}{
 		{"valid expression", "2 + 5 + 6", nil},
 		{"illegal character", "3 + b - 2", ErrIllegalCharacter},
+		{"legal start (digit)", "2/3", nil},
+		{"legal start (parenthesis)", "(2/3)", nil},
+		{"legal start (subtraction)", "-2/3", nil},
+		{"legal start (whitespace)", " -2/3", nil},
+		{"illegal start (addition)", "+2/3", ErrIllegalStart},
+		{"illegal start (multiplication)", "*2/3", ErrIllegalStart},
+		{"illegal start (division)", "/2/3", ErrIllegalStart},
+		{"illegal start (decimal)", ".2/3", ErrIllegalStart},
+		{"legal start (digit)", "2/3", nil},
+		{"legal start (parenthesis)", "(2/3)", nil},
+		{"illegal end (addition)", "2/3+", ErrIllegalEnd},
+		{"illegal end (subtraction)", "2/3-", ErrIllegalEnd},
+		{"legal end (whitespace)", "-2/3 ", nil},
+		{"illegal end (multiplication)", "2/3*", ErrIllegalEnd},
+		{"illegal end (division)", "2/3/", ErrIllegalEnd},
+		{"illegal end (decimal)", "2/3.", ErrIllegalEnd},
+		{"empty parenthesis", "2/3 + ()", ErrEmptyParentheses},
 	}
 
 	for _, tt := range tests {
@@ -99,11 +116,7 @@ func Test_simplify(t *testing.T) {
 		{"pure multiplication", "3*5.5*8", []string{"132"}, nil},
 		{"pure division", "3/5/8", []string{"0.075"}, nil},
 		{"mixed", "3+5-2*7/3+4", []string{"3", "+", "5", "-4.666666666666667", "+", "4"}, nil},
-		{"addition prefix", "+2/3", []string{"+", "0.6666666666666666"}, nil},
 		{"subtraction prefix", "-2*3", []string{"-", "6"}, nil},
-		{"multiplication prefix", "*2*3", []string{}, ErrIllegalCharacter},
-		{"division prefix", "/2*3", []string{}, ErrIllegalCharacter},
-		{"end with operation", "2*3+", []string{}, ErrIllegalCharacter},
 		{"joined operands", "2*4", []string{"8"}, nil},
 	}
 

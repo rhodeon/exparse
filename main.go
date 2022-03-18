@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -11,6 +12,9 @@ import (
 var ErrMalformedExp = errors.New("malformed expression")
 var ErrIllegalCharacter = errors.New("illegal character detected")
 var ErrDepthExceeded = errors.New("maximum parenthesis depth exceeded")
+var ErrIllegalStart = errors.New("expressions must begin only with a digit, '(' or '-'")
+var ErrIllegalEnd = errors.New("expressions must end only a digit or ')'")
+var ErrEmptyParentheses = errors.New("empty parentheses are not allowed")
 
 // legal characters
 const (
@@ -25,13 +29,12 @@ const (
 )
 
 func main() {
-	expr := "2+5 - 2.5(6*4) + 3"
+	expr := "2+5-2(6+4)+3"
 	_, err := validate(expr)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// "2+5 - 2(6*4) + 3"
 	result, err := resolve(expr)
 	if err != nil {
 		log.Fatalln(err)
@@ -53,6 +56,7 @@ func isLegal(value string) bool {
 	}
 }
 
+// validate checks if the given expression is well-formed.
 func validate(expr string) (string, error) {
 	for _, char := range expr {
 		value := string(char)
@@ -61,6 +65,7 @@ func validate(expr string) (string, error) {
 		}
 	}
 
+	// a maximum parentheses depth of 1 is allowed
 	depth, err := maxDepth(expr)
 	if err != nil {
 		return "", err
@@ -68,6 +73,24 @@ func validate(expr string) (string, error) {
 
 	if depth > 1 {
 		return "", ErrDepthExceeded
+	}
+
+	// expressions must begin only with a digit, '(' or '-'
+	startPattern := regexp.MustCompile("^[\\d\\-(\\s]")
+	if !startPattern.MatchString(expr) {
+		return "", ErrIllegalStart
+	}
+
+	// expressions must end only a digit or ')'
+	endPattern := regexp.MustCompile("[\\d)\\s]$")
+	if !endPattern.MatchString(expr) {
+		return "", ErrIllegalEnd
+	}
+
+	// empty parentheses are not allowed
+	parenthesisPattern := regexp.MustCompile("\\([)]")
+	if parenthesisPattern.MatchString(expr) {
+		return "", ErrEmptyParentheses
 	}
 
 	return "", nil
@@ -223,27 +246,17 @@ func normalize(expr string) ([]string, error) {
 
 		if pos == 0 {
 			switch value {
-			// allow only addition and subtraction as starting operators
-			case add, subtract:
+			// allow only subtraction as a starting operator
+			case subtract:
 				legalExp = append(legalExp, value)
-
-			case multiply, divide, decimal:
-				return []string{}, ErrIllegalCharacter
 
 			default:
 				operand += value
 			}
 		} else if pos == len(expr)-1 {
-			switch value {
-			case add, subtract, multiply, divide, decimal:
-				// operators cannot end an expression
-				return []string{}, ErrIllegalCharacter
-
-			default:
-				// accumulate final operand and append to legalExp
-				operand += value
-				legalExp = append(legalExp, operand)
-			}
+			// accumulate final operand and append to legalExp
+			operand += value
+			legalExp = append(legalExp, operand)
 		} else {
 			switch value {
 			case add, multiply, divide:
@@ -255,7 +268,6 @@ func normalize(expr string) ([]string, error) {
 
 			case subtract:
 				// group subtraction with the next operand as a unary operator
-
 				if operand != "" {
 					// a separate operand already precedes the subtraction sign
 					legalExp = append(legalExp, operand)
