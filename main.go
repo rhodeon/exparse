@@ -3,14 +3,16 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 )
 
 var ErrMalformedExp = errors.New("malformed expression")
 var ErrIllegalCharacter = errors.New("illegal character detected")
+var ErrDepthExceeded = errors.New("maximum parenthesis depth exceeded")
 
-// operators
+// legal characters
 const (
 	openParenthesis  = "("
 	closeParenthesis = ")"
@@ -19,20 +21,28 @@ const (
 	multiply         = "*"
 	divide           = "/"
 	decimal          = "."
+	whitespace       = " "
 )
 
 func main() {
-	result, err := resolveParentheses("2+5 - 2(6+4) + 3")
+	expr := "2+5 - 2.5(6*4) + 3"
+	_, err := validate(expr)
 	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Printf("%#v", result)
+		log.Fatalln(err)
 	}
+
+	// "2+5 - 2(6*4) + 3"
+	result, err := resolve(expr)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Printf("%#v", result)
 }
 
 func isLegal(value string) bool {
 	switch value {
-	case add, subtract, multiply, divide:
+	case add, subtract, multiply, divide, openParenthesis, closeParenthesis, decimal, whitespace:
 		return true
 	default:
 		_, err := strconv.ParseFloat(value, 64)
@@ -41,6 +51,35 @@ func isLegal(value string) bool {
 		}
 		return true
 	}
+}
+
+func validate(expr string) (string, error) {
+	for _, char := range expr {
+		value := string(char)
+		if !isLegal(value) {
+			return value, ErrIllegalCharacter
+		}
+	}
+
+	depth, err := maxDepth(expr)
+	if err != nil {
+		return "", err
+	}
+
+	if depth > 1 {
+		return "", ErrDepthExceeded
+	}
+
+	return "", nil
+}
+
+func resolve(expr string) (float64, error) {
+	result, err := resolveParentheses(expr)
+	if err != nil {
+		return 0, err
+	}
+	final, _ := evaluate(result)
+	return final, nil
 }
 
 // evaluate computes a simplified expression list (with only addition and subtraction operators)
@@ -376,10 +415,4 @@ func evaluateParentheses(exprs []string) (string, error) {
 
 	result := strings.Join(evaluated, "")
 	return result, nil
-}
-
-func trimParentheses(expr string) string {
-	expr = strings.TrimLeft(expr, "(")
-	expr = strings.TrimRight(expr, ")")
-	return expr
 }
