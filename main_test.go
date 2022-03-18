@@ -30,6 +30,21 @@ func Test_validate(t *testing.T) {
 		{"illegal end (division)", "2/3/", ErrIllegalEnd},
 		{"illegal end (decimal)", "2/3.", ErrIllegalEnd},
 		{"empty parenthesis", "2/3 + ()", ErrEmptyParentheses},
+		{"legal consecutive operator (double minus)", "4--2", nil},
+		{"illegal consecutive operator (triple minus)", "4---2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (addition)", "4++2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (multiplication)", "4**2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (division)", "4//2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (decimal)", "4..2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (mixed)", "4/+2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (mixed)", "4*/2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (minus then plus)", "4-+2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (minus then multiplication)", "4-/2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (minus then division)", "4-*2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (minus then decimal)", "4-.2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (multiplication then decimal)", "4*.2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (division then decimal)", "4/.2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (decimal then division)", "4./2", ErrIllegalConsecutiveOperator},
 	}
 
 	for _, tt := range tests {

@@ -15,6 +15,7 @@ var ErrDepthExceeded = errors.New("maximum parenthesis depth exceeded")
 var ErrIllegalStart = errors.New("expressions must begin only with a digit, '(' or '-'")
 var ErrIllegalEnd = errors.New("expressions must end only a digit or ')'")
 var ErrEmptyParentheses = errors.New("empty parentheses are not allowed")
+var ErrIllegalConsecutiveOperator = errors.New("illegal consecutive operators detected")
 
 // legal characters
 const (
@@ -91,6 +92,22 @@ func validate(expr string) (string, error) {
 	parenthesisPattern := regexp.MustCompile("\\([)]")
 	if parenthesisPattern.MatchString(expr) {
 		return "", ErrEmptyParentheses
+	}
+
+	// only minus can appear consecutively after another operator
+	operatorPattern := regexp.MustCompile("[+*/.]2+")
+	if operatorPattern.MatchString(expr) {
+		return "", ErrIllegalConsecutiveOperator
+	}
+
+	operatorPattern = regexp.MustCompile("-[+*/.]")
+	if operatorPattern.MatchString(expr) {
+		return "", ErrIllegalConsecutiveOperator
+	}
+
+	operatorPattern = regexp.MustCompile("---")
+	if operatorPattern.MatchString(expr) {
+		return "", ErrIllegalConsecutiveOperator
 	}
 
 	return "", nil
