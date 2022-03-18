@@ -5,6 +5,27 @@ import (
 	"testing"
 )
 
+func Test_validate(t *testing.T) {
+	tests := []struct {
+		name       string
+		expression string
+		wantErr    error
+	}{
+		{"valid expression", "2 + 5 + 6", nil},
+		{"illegal character", "3 + b - 2", ErrIllegalCharacter},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := validate(tt.expression)
+
+			if err != tt.wantErr {
+				t.Errorf("\nGot:\t%v\nWant:\t%v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func Test_maxDepth(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -51,7 +72,6 @@ func Test_simplify(t *testing.T) {
 		{"pure multiplication", "3 * 5.5 * 8", []string{"132"}, nil},
 		{"pure division", "3 / 5 / 8", []string{"0.075"}, nil},
 		{"mixed", "3 + 5 - 2 * 7 / 3 + 4", []string{"3", "+", "5", "-4.666666666666667", "+", "4"}, nil},
-		{"illegal character", "3 + b - 2", []string{}, ErrIllegalCharacter},
 		{"addition prefix", "+ 2 / 3", []string{"+", "0.6666666666666666"}, nil},
 		{"subtraction prefix", "- 2 * 3", []string{"-", "6"}, nil},
 		{"multiplication prefix", "* 2 * 3", []string{}, ErrIllegalCharacter},
@@ -114,7 +134,6 @@ func Test_normalize(t *testing.T) {
 		{"subtraction negation", "4+3--2", []string{"4", "+", "3", "+", "2"}, nil},
 		{"combined multiplication and subtraction", "4+3*-2", []string{"4", "+", "3", "*", "-2"}, nil},
 		{"combined division and subtraction", "4+3/-2", []string{"4", "+", "3", "/", "-2"}, nil},
-		{"", "4+3P-2", []string{}, ErrIllegalCharacter},
 	}
 
 	for _, tt := range tests {

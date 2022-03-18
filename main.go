@@ -221,10 +221,6 @@ func normalize(expr string) ([]string, error) {
 	for pos, char := range trimmedExpr {
 		value := string(char)
 
-		if !isLegal(value) && value != decimal {
-			return []string{}, ErrIllegalCharacter
-		}
-
 		if pos == 0 {
 			switch value {
 			// allow only addition and subtraction as starting operators
@@ -367,10 +363,6 @@ func simplifyParentheses(expr string) ([]string, error) {
 			}
 
 		default:
-			if !isLegal(value) && value != decimal {
-				return []string{}, ErrIllegalCharacter
-			}
-
 			// accumulate digits, nested or not
 			buffer += value
 
