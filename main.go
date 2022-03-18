@@ -111,6 +111,16 @@ func resolve(expr string) (float64, error) {
 // evaluate computes a simplified expression list (with only addition and subtraction operators)
 // into a final float result.
 func evaluate(expr string) (float64, error) {
+	// return single digits early
+	if len(expr) == 1 {
+		if expr == subtract {
+			return 0, ErrIllegalCharacter
+		}
+
+		result, _ := strconv.ParseFloat(expr, 64)
+		return result, nil
+	}
+
 	simplified, err := simplify(expr)
 	if err != nil {
 		return 0, err
@@ -224,19 +234,7 @@ func normalize(expr string) ([]string, error) {
 	//resolve consecutive addition and subtraction operators
 	replacer := strings.NewReplacer("+-", "-", "--", "+")
 	expr = replacer.Replace(expr)
-
 	var legalExp []string
-
-	// ensure only numeric single characters are parsed
-	if len(expr) == 1 {
-		_, err := strconv.ParseFloat(expr, 64)
-		if err != nil {
-			return []string{}, ErrIllegalCharacter
-		}
-		return []string{expr}, nil
-	}
-
-	// TODO: Guard against consecutive operators
 
 	// the operand is accumulated and added to legalExp when an operator is found
 	var operand string
