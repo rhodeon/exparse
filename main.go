@@ -304,35 +304,30 @@ func normalize(expr string) ([]string, error) {
 // maxDepth returns the deepest level of nested brackets an expression has.
 // An error is returned if the string doesn't have an equivalent closing bracket for each opening bracket.
 func maxDepth(expression string) (int, error) {
-	stack := bracketStack{}
+	var currentDepth int
+	var maxDepth int
 
 	for _, char := range expression {
 		if string(char) == closeParenthesis {
-			stack.currentDepth--
-			if stack.currentDepth < 0 {
+			currentDepth--
+			if currentDepth < 0 {
 				// more ")" than "("
 				return -1, ErrMalformedExp
 			}
 		} else if string(char) == openParenthesis {
-			stack.currentDepth++
-			if stack.currentDepth > stack.maxDepth {
-				stack.maxDepth = stack.currentDepth
+			currentDepth++
+			if currentDepth > maxDepth {
+				maxDepth = currentDepth
 			}
 		}
 	}
 
-	if stack.currentDepth != 0 {
+	if currentDepth != 0 {
 		// more "(" than ")"
 		return -1, ErrMalformedExp
 	}
 
-	return stack.maxDepth, nil
-}
-
-type bracketStack struct {
-	history      []rune
-	currentDepth int
-	maxDepth     int
+	return maxDepth, nil
 }
 
 // resolveParentheses parses an expression with parentheses and returns its simplified form.
