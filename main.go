@@ -74,6 +74,9 @@ func validate(expr string) (string, error) {
 }
 
 func resolve(expr string) (float64, error) {
+	// remove whitespaces in expression
+	expr = strings.Join(strings.Fields(expr), "")
+
 	result, err := resolveParentheses(expr)
 	if err != nil {
 		return 0, err
@@ -195,22 +198,19 @@ func simplify(expr string) ([]string, error) {
 // An error is returned if the expression begins with a multiplication, division or decimal.
 // An error is returned if the expression begins with an addition, subtraction, multiplication, division or decimal.
 func normalize(expr string) ([]string, error) {
-	// remove whitespaces in expression
-	trimmedExpr := strings.Join(strings.Fields(expr), "")
-
 	//resolve consecutive addition and subtraction operators
 	replacer := strings.NewReplacer("+-", "-", "--", "+")
-	trimmedExpr = replacer.Replace(trimmedExpr)
+	expr = replacer.Replace(expr)
 
 	var legalExp []string
 
 	// ensure only numeric single characters are parsed
-	if len(trimmedExpr) == 1 {
-		_, err := strconv.ParseFloat(trimmedExpr, 64)
+	if len(expr) == 1 {
+		_, err := strconv.ParseFloat(expr, 64)
 		if err != nil {
 			return []string{}, ErrIllegalCharacter
 		}
-		return []string{trimmedExpr}, nil
+		return []string{expr}, nil
 	}
 
 	// TODO: Guard against consecutive operators
@@ -218,7 +218,7 @@ func normalize(expr string) ([]string, error) {
 	// the operand is accumulated and added to legalExp when an operator is found
 	var operand string
 
-	for pos, char := range trimmedExpr {
+	for pos, char := range expr {
 		value := string(char)
 
 		if pos == 0 {
@@ -233,7 +233,7 @@ func normalize(expr string) ([]string, error) {
 			default:
 				operand += value
 			}
-		} else if pos == len(trimmedExpr)-1 {
+		} else if pos == len(expr)-1 {
 			switch value {
 			case add, subtract, multiply, divide, decimal:
 				// operators cannot end an expression
@@ -330,8 +330,6 @@ func simplifyParentheses(expr string) ([]string, error) {
 	var nested bool
 	var result []string
 	var buffer string
-
-	expr = strings.Join(strings.Fields(expr), "")
 
 	for pos, char := range expr {
 		value := string(char)
