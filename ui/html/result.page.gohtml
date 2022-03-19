@@ -1,0 +1,15 @@
+{{- /*gotype: github.com/rhodeon/expression-parser/cmd/web.TemplateData*/ -}}
+
+{{template "base" .}}
+
+{{define "title"}}Result{{end}}
+
+{{define "main"}}
+    <div class='snippet'>
+        <div class='metadata'>
+            <strong>{{.Expr}}</strong>
+        </div>
+
+        <pre><code>{{.Result}}</code></pre>
+    </div>
+{{end}}

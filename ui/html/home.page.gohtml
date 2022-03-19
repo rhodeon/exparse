@@ -1,0 +1,22 @@
+{{- /*gotype: github.com/rhodeon/expression-parser/cmd/web.TemplateData*/ -}}
+
+{{template "base" .}}
+
+{{define "title"}} Home {{end}}
+
+{{define "main"}}
+    <form action='/result' method='POST'>
+            <div>
+                <label for="expr">Expression:</label>
+                <input id="expr" name='expr' type='text' value='{{.Expr}}'>
+
+                {{with .Error}}
+                    <label class='error'>{{.}}</label>
+                {{end}}
+            </div>
+
+            <div>
+                <input type='submit' value='Solve'>
+            </div>
+    </form>
+{{end}}
