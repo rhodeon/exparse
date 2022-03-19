@@ -35,6 +35,13 @@ func simplifyParentheses(expr string) []string {
 
 		switch value {
 		case openParenthesis:
+			switch string(expr[pos-1]) {
+			// look behind to append a multiplication if no operator was found before the parenthesis
+			case add, subtract, multiply, divide:
+			default:
+				result = append(result, buffer)
+				result = append(result, multiply)
+			}
 			nested = true
 			buffer = ""
 
@@ -63,17 +70,9 @@ func simplifyParentheses(expr string) []string {
 			// accumulate digits, nested or not
 			buffer += value
 
-			if !nested {
-				if pos == len(expr)-1 {
-					// flush the final contents of the buffer
-					result = append(result, buffer)
-				} else if string(expr[pos+1]) == openParenthesis {
-					// look ahead to append a multiplication if no operator
-					// is found before the next parenthesis
-					result = append(result, buffer)
-					result = append(result, multiply)
-					buffer = ""
-				}
+			if pos == len(expr)-1 {
+				// flush the final contents of the buffer
+				result = append(result, buffer)
 			}
 		}
 	}

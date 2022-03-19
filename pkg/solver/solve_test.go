@@ -9,18 +9,21 @@ func TestSolve(t *testing.T) {
 	tests := []struct {
 		name       string
 		expression string
-		wantResult float64
+		wantResult string
 	}{
-		{"1", "2+5 - 2(6+4) + 3", -10},
-		{"2", "-2+5 - 2(6+4) + 3", -14},
-		{"3", "2+5 - 2(6*4) + 3", -38},
+		{"1", "2+5 - 2(6+4) + 3", "-10"},
+		{"2", "-2+5 - 2(6+4) + 3", "-14"},
+		{"3", "2+5 - 2(6*4) + 3", "-38"},
+		{"4", "50 * 4 + 9 * 3 - 6 * 40000000000000", "-239999999999773"},
+		{"5", "2(3.54 * 2.00 -1000 /200) / (20 + 30 * 2)", "0.052000000000000005"},
+		{"6", " 2(3.54 * 2.00 -1000 /200) (20 + 30 * 2)", "332.8"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := Solve(tt.expression)
 			if result != tt.wantResult {
-				t.Errorf("\nGot:\t%f\nWant:\t%f", result, tt.wantResult)
+				t.Errorf("\nGot:\t%s\nWant:\t%s", result, tt.wantResult)
 			}
 		})
 	}
