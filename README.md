@@ -15,6 +15,13 @@ go run ./cmd/cli --expr="2(3.54 * 2.00 -1000 /200) (20 + 30 * 2)"
 Exparse: 2(3.54 * 2.00 -1000 /200) (20 + 30 * 2) = 332.8
 ```
 
+### web
+Start the server with an optional network address:
+```go
+go run ./cmd/web --addr=:8000
+```
+The default address is ':4000'
+
 ## TODO
 <li> Implement the modulus operator </li>
 <li> Handle nested parentheses </li>
