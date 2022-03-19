@@ -6,12 +6,13 @@ import (
 )
 
 // Solve computes and returns the result of the given expression.
-func Solve(expr string) float64 {
+func Solve(expr string) string {
 	// remove whitespaces in expression
 	expr = strings.Join(strings.Fields(expr), "")
 	resolved := resolveParentheses(expr)
 	result := evaluate(resolved)
-	return result
+	return strconv.FormatFloat(result, 'f', -1, 64)
+
 }
 
 // resolveParentheses parses an expression with parentheses and returns its simplified form.

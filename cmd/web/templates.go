@@ -8,7 +8,7 @@ import (
 
 type TemplateData struct {
 	Expr   string
-	Result float64
+	Result string
 	Error  string
 }
 

@@ -23,5 +23,5 @@ func main() {
 	}
 
 	result := solver.Solve(*expr)
-	fmt.Printf("Exparse: %s = %g\n", *expr, result)
+	fmt.Printf("Exparse: %s = %s\n", *expr, result)
 }
