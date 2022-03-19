@@ -35,13 +35,13 @@ func Test_validate(t *testing.T) {
 		{"illegal consecutive operator (decimal)", "4..2", ErrIllegalConsecutiveOperator},
 		{"illegal consecutive operator (mixed)", "4/+2", ErrIllegalConsecutiveOperator},
 		{"illegal consecutive operator (mixed)", "4*/2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (multiplication then decimal)", "4*.2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (division then decimal)", "4/.2", ErrIllegalConsecutiveOperator},
+		{"illegal consecutive operator (decimal then division)", "4./2", ErrIllegalConsecutiveOperator},
 		{"illegal consecutive operator (minus then plus)", "4-+2", ErrIllegalConsecutiveOperator},
 		{"illegal consecutive operator (minus then multiplication)", "4-/2", ErrIllegalConsecutiveOperator},
 		{"illegal consecutive operator (minus then division)", "4-*2", ErrIllegalConsecutiveOperator},
 		{"illegal consecutive operator (minus then decimal)", "4-.2", ErrIllegalConsecutiveOperator},
-		{"illegal consecutive operator (multiplication then decimal)", "4*.2", ErrIllegalConsecutiveOperator},
-		{"illegal consecutive operator (division then decimal)", "4/.2", ErrIllegalConsecutiveOperator},
-		{"illegal consecutive operator (decimal then division)", "4./2", ErrIllegalConsecutiveOperator},
 	}
 
 	for _, tt := range tests {

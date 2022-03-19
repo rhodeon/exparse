@@ -43,16 +43,18 @@ func Validate(expr string) (string, error) {
 	}
 
 	// only minus can appear consecutively after another operator
-	operatorPattern := regexp.MustCompile("[+*/.]1{2,}")
+	operatorPattern := regexp.MustCompile("[+*/.]{2,}")
 	if operatorPattern.MatchString(expr) {
 		return "", ErrIllegalConsecutiveOperator
 	}
 
+	// another operator cannot appear after minus
 	operatorPattern = regexp.MustCompile("-[+*/.]")
 	if operatorPattern.MatchString(expr) {
 		return "", ErrIllegalConsecutiveOperator
 	}
 
+	// 3 consecutive minuses cannot occur
 	operatorPattern = regexp.MustCompile("---")
 	if operatorPattern.MatchString(expr) {
 		return "", ErrIllegalConsecutiveOperator
