@@ -10,21 +10,15 @@ func TestSolve(t *testing.T) {
 		name       string
 		expression string
 		wantResult float64
-		wantErr    error
 	}{
-		{"1", "2+5 - 2(6+4) + 3", -10, nil},
-		{"2", "-2+5 - 2(6+4) + 3", -14, nil},
-		{"3", "2+5 - 2(6*4) + 3", -38, nil},
+		{"1", "2+5 - 2(6+4) + 3", -10},
+		{"2", "-2+5 - 2(6+4) + 3", -14},
+		{"3", "2+5 - 2(6*4) + 3", -38},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := Solve(tt.expression)
-
-			if err != tt.wantErr {
-				t.Errorf("\nGot:\t%v\nWant:\t%v", err, tt.wantErr)
-			}
-
+			result := Solve(tt.expression)
 			if result != tt.wantResult {
 				t.Errorf("\nGot:\t%f\nWant:\t%f", result, tt.wantResult)
 			}
@@ -45,8 +39,7 @@ func Test_resolveParentheses(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, _ := resolveParentheses(tt.expression)
-
+			result := resolveParentheses(tt.expression)
 			if result != tt.wantResult {
 				t.Errorf("\nGot:\t%s\nWant:\t%s", result, tt.wantResult)
 			}
@@ -71,7 +64,7 @@ func Test_evaluate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, _ := evaluate(tt.expression)
+			result := evaluate(tt.expression)
 
 			if result != tt.result {
 				t.Errorf("\nGot:\t%f\nWant:\t%f", result, tt.result)
@@ -85,25 +78,19 @@ func Test_simplify(t *testing.T) {
 		name       string
 		expression string
 		wantResult []string
-		wantErr    error
 	}{
-		{"pure addition", "3+5+8", []string{"3", "+", "5", "+", "8"}, nil},
-		{"pure subtraction", "3-5-8", []string{"3", "-5", "-8"}, nil},
-		{"pure multiplication", "3*5.5*8", []string{"132"}, nil},
-		{"pure division", "3/5/8", []string{"0.075"}, nil},
-		{"mixed", "3+5-2*7/3+4", []string{"3", "+", "5", "-4.666666666666667", "+", "4"}, nil},
-		{"subtraction prefix", "-2*3", []string{"-", "6"}, nil},
-		{"joined operands", "2*4", []string{"8"}, nil},
+		{"pure addition", "3+5+8", []string{"3", "+", "5", "+", "8"}},
+		{"pure subtraction", "3-5-8", []string{"3", "-5", "-8"}},
+		{"pure multiplication", "3*5.5*8", []string{"132"}},
+		{"pure division", "3/5/8", []string{"0.075"}},
+		{"mixed", "3+5-2*7/3+4", []string{"3", "+", "5", "-4.666666666666667", "+", "4"}},
+		{"subtraction prefix", "-2*3", []string{"-", "6"}},
+		{"joined operands", "2*4", []string{"8"}},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := simplify(tt.expression)
-
-			if err != tt.wantErr {
-				t.Errorf("\nGot:\t%v\nWant:\t%v", err, tt.wantErr)
-			}
-
+			result := simplify(tt.expression)
 			if !reflect.DeepEqual(result, tt.wantResult) {
 				t.Errorf("\nGot:\t%#v\nWant:\t%#v", result, tt.wantResult)
 			}
@@ -116,24 +103,18 @@ func Test_normalize(t *testing.T) {
 		name       string
 		expression string
 		wantResult []string
-		wantErr    error
 	}{
-		{"addition", "4+3+2", []string{"4", "+", "3", "+", "2"}, nil},
-		{"addition and subtraction", "4+3-2", []string{"4", "+", "3", "-2"}, nil},
-		{"addition negation", "4+3+-2", []string{"4", "+", "3", "-2"}, nil},
-		{"subtraction negation", "4+3--2", []string{"4", "+", "3", "+", "2"}, nil},
-		{"combined multiplication and subtraction", "4+3*-2", []string{"4", "+", "3", "*", "-2"}, nil},
-		{"combined division and subtraction", "4+3/-2", []string{"4", "+", "3", "/", "-2"}, nil},
+		{"addition", "4+3+2", []string{"4", "+", "3", "+", "2"}},
+		{"addition and subtraction", "4+3-2", []string{"4", "+", "3", "-2"}},
+		{"addition negation", "4+3+-2", []string{"4", "+", "3", "-2"}},
+		{"subtraction negation", "4+3--2", []string{"4", "+", "3", "+", "2"}},
+		{"combined multiplication and subtraction", "4+3*-2", []string{"4", "+", "3", "*", "-2"}},
+		{"combined division and subtraction", "4+3/-2", []string{"4", "+", "3", "/", "-2"}},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := normalize(tt.expression)
-
-			if err != tt.wantErr {
-				t.Errorf("\nGot:\t%v\nWant:\t%v", err, tt.wantErr)
-			}
-
+			result := normalize(tt.expression)
 			if !reflect.DeepEqual(result, tt.wantResult) {
 				t.Errorf("\nGot:\t%#v\nWant:\t%#v", result, tt.wantResult)
 			}

@@ -16,10 +16,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	result, err := solver.Solve(*expr)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
+	result := solver.Solve(*expr)
 	fmt.Printf("%s = %g\n", *expr, result)
 }

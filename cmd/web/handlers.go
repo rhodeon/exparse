@@ -53,7 +53,7 @@ func calculateResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := solver.Solve(expr)
+	result := solver.Solve(expr)
 	prettylog.InfoF("Result: %s", result)
 
 	if err != nil {

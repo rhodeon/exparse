@@ -6,37 +6,25 @@ import (
 )
 
 // Solve computes and returns the result of the given expression.
-func Solve(expr string) (float64, error) {
+func Solve(expr string) float64 {
 	// remove whitespaces in expression
 	expr = strings.Join(strings.Fields(expr), "")
-
-	result, err := resolveParentheses(expr)
-	if err != nil {
-		return 0, err
-	}
-	final, _ := evaluate(result)
-	return final, nil
+	resolved := resolveParentheses(expr)
+	result := evaluate(resolved)
+	return result
 }
 
 // resolveParentheses parses an expression with parentheses and returns its simplified form.
-func resolveParentheses(expr string) (string, error) {
-	simplified, err := simplifyParentheses(expr)
-	if err != nil {
-		return "", err
-	}
-
-	evaluated, err := evaluateParentheses(simplified)
-	if err != nil {
-		return "", err
-	} else {
-		return evaluated, nil
-	}
+func resolveParentheses(expr string) string {
+	simplified := simplifyParentheses(expr)
+	evaluated := evaluateParentheses(simplified)
+	return evaluated
 }
 
 // simplifyParentheses groups the parentheses in the expression
 // and returns a list containing the groups as individual expressions
 // alongside the expressions not covered by parentheses.
-func simplifyParentheses(expr string) ([]string, error) {
+func simplifyParentheses(expr string) []string {
 	var nested bool
 	var result []string
 	var buffer string
@@ -89,13 +77,13 @@ func simplifyParentheses(expr string) ([]string, error) {
 		}
 	}
 
-	return result, nil
+	return result
 }
 
 // evaluateParentheses computes the value of each sub-expression in the give list of expressions.
 // Operators are not evaluated.
 // The result is returned as a string with the simplified expression.
-func evaluateParentheses(exprs []string) (string, error) {
+func evaluateParentheses(exprs []string) string {
 	var evaluated []string
 
 	for _, expr := range exprs {
@@ -105,35 +93,25 @@ func evaluateParentheses(exprs []string) (string, error) {
 			evaluated = append(evaluated, expr)
 
 		default:
-			evaluatedExpr, err := evaluate(expr)
-			if err != nil {
-				return "", err
-			}
+			evaluatedExpr := evaluate(expr)
 			evaluated = append(evaluated, strconv.FormatFloat(evaluatedExpr, 'f', -1, 64))
 		}
 	}
 
 	result := strings.Join(evaluated, "")
-	return result, nil
+	return result
 }
 
 // evaluate computes a simplified expression list (with only addition and subtraction operators)
 // into a final float result.
-func evaluate(expr string) (float64, error) {
+func evaluate(expr string) float64 {
 	// return single digits early
 	if len(expr) == 1 {
-		if expr == subtract {
-			return 0, ErrIllegalCharacter
-		}
-
 		result, _ := strconv.ParseFloat(expr, 64)
-		return result, nil
+		return result
 	}
 
-	simplified, err := simplify(expr)
-	if err != nil {
-		return 0, err
-	}
+	simplified := simplify(expr)
 	simplified = splitUnary(simplified)
 
 	var result float64
@@ -167,18 +145,13 @@ func evaluate(expr string) (float64, error) {
 		}
 	}
 
-	return result, nil
+	return result
 }
 
 // simplify reduces an expression to have only addition and subtraction operators.
 // An error is returned if a non-digit or non-operator character is found.
-func simplify(expr string) ([]string, error) {
-	// remove whitespaces and guard against illegal character placements
-	legalExpr, err := normalize(expr)
-	if err != nil {
-		return []string{}, err
-	}
-
+func simplify(expr string) []string {
+	legalExpr := normalize(expr)
 	var simplified []string
 	var skipFlag bool
 
@@ -211,11 +184,11 @@ func simplify(expr string) ([]string, error) {
 		}
 	}
 
-	return simplified, nil
+	return simplified
 }
 
 // normalize returns a list of each element in the expression.
-func normalize(expr string) ([]string, error) {
+func normalize(expr string) []string {
 	//Solve consecutive addition and subtraction operators
 	replacer := strings.NewReplacer("+-", "-", "--", "+")
 	expr = replacer.Replace(expr)
@@ -266,7 +239,7 @@ func normalize(expr string) ([]string, error) {
 		}
 	}
 
-	return legalExp, nil
+	return legalExp
 }
 
 // splitUnary separates all subtraction signs in the expression from their operands.
