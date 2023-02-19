@@ -4,7 +4,6 @@ Exparse is a CLI and web tool for evaluating mathematical equations.
 
 It currently supports addition, subtraction, multiplication, division, and unnested parentheses.
 
-[Live link](https://exparse.herokuapp.com/)
 
 ## Usage
 ### cli
